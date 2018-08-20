@@ -1,0 +1,80 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+apply plugin: 'java-library'
+apply plugin: 'eclipse'
+
+
+group = 'me.limeglass.beamer'
+version = '1.0.0'
+
+sourceCompatibility = 1.8
+jar.archiveName = project.name + '.jar'
+
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    
+    //Spigot
+    maven {
+        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    
+    //Skript
+    maven {
+        url "https://raw.githubusercontent.com/bensku/mvn-repo/master"
+    }
+    
+    //Bungeecord
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+    
+    //ProtocolLib
+    maven {
+    	url "http://repo.dmulloy2.net/nexus/repository/public/"
+    }
+    
+    //jitpack
+    maven {
+    	url 'https://jitpack.io'
+    }
+}
+
+dependencies {
+	
+	//Nullable annotation
+	implementation (group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '1.1.0')
+	
+	//Spigot/Bukkit
+	implementation (group: 'org.spigotmc', name: 'spigot-api', version: '1.12.2-R0.1-SNAPSHOT')
+	
+	//ProtocolLib
+	//implementation (group: "com.github.dmulloy2.ProtocolLib", name: "ProtocolLib", version: "4.2.1")
+	implementation (group: "com.comphenix.protocol", name: "ProtocolLib-API", version: "4.4.0-20180804.022003-36")
+	
+	//Skript
+    implementation (group: 'ch.njol', name: 'skript', version: '2.2-dev35b') {
+        transitive = false
+	}
+	
+	//shade fileTree(dir: 'lib', include: '*.jar')
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        include '**/*.yml'
+    }
+}
+
+jar {
+    configurations.shade.each { dep ->
+        from(project.zipTree(dep)){
+            exclude 'META-INF', 'META-INF/**'
+            exclude '**/*.yml'
+        }
+    }
+}
