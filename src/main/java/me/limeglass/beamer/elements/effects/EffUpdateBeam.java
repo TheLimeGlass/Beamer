@@ -5,8 +5,8 @@ import org.bukkit.event.Event;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import me.limeglass.beamer.lang.BeamerEffect;
+import me.limeglass.beamer.protocol.beam.ClientBeam;
 import me.limeglass.beamer.utils.annotations.Patterns;
-import net.jaxonbrown.guardianBeam.beam.ClientBeam;
 
 @Name("Beam update")
 @Description("Update Guardian Beam.")

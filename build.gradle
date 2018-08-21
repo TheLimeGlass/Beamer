@@ -53,26 +53,23 @@ dependencies {
 	implementation (group: 'org.spigotmc', name: 'spigot-api', version: '1.12.2-R0.1-SNAPSHOT')
 	
 	//ProtocolLib
-	//implementation (group: "com.github.dmulloy2.ProtocolLib", name: "ProtocolLib", version: "4.2.1")
 	implementation (group: "com.comphenix.protocol", name: "ProtocolLib-API", version: "4.4.0-20180804.022003-36")
 	
 	//Skript
     implementation (group: 'ch.njol', name: 'skript', version: '2.2-dev35b') {
         transitive = false
 	}
-	
-	//shade fileTree(dir: 'lib', include: '*.jar')
 }
 
 processResources {
-    from(sourceSets.main.resources.srcDirs) {
+    from (sourceSets.main.resources.srcDirs) {
         include '**/*.yml'
     }
 }
 
 jar {
     configurations.shade.each { dep ->
-        from(project.zipTree(dep)){
+        from (project.zipTree(dep)){
             exclude 'META-INF', 'META-INF/**'
             exclude '**/*.yml'
         }

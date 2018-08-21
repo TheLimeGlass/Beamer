@@ -9,9 +9,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import ch.njol.util.coll.CollectionUtils;
 import me.limeglass.beamer.lang.BeamerExpression;
+import me.limeglass.beamer.protocol.beam.ClientBeam;
 import me.limeglass.beamer.utils.annotations.Patterns;
 import me.limeglass.beamer.utils.annotations.Single;
-import net.jaxonbrown.guardianBeam.beam.ClientBeam;
 
 @Name("GuardianBeam - new beam")
 @Description("Creates a new beam.")

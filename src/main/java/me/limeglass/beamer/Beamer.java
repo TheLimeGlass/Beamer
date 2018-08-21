@@ -18,8 +18,12 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
 import me.limeglass.beamer.elements.Register;
+import me.limeglass.beamer.protocol.IPacketFactory;
+import me.limeglass.beamer.protocol.PacketFactory_1_12_R1;
+import me.limeglass.beamer.protocol.PacketFactory_1_8_R1;
+import me.limeglass.beamer.protocol.beam.ClientBeam;
+import me.limeglass.beamer.utils.ReflectionUtil;
 import me.limeglass.beamer.utils.Utils;
-import net.jaxonbrown.guardianBeam.beam.ClientBeam;
 import net.md_5.bungee.api.ChatColor;
 
 public class Beamer extends JavaPlugin {
@@ -28,6 +32,7 @@ public class Beamer extends JavaPlugin {
 	private String packageName = "me.limeglass.beamer";
 	private static String prefix = "&7[&bBeamer&7] &9";
 	private static String nameplate = "[Beamer] ";
+	private static IPacketFactory factory;
 	private static Beamer instance;
 	private SkriptAddon addon;
 	private Metrics metrics;
@@ -58,11 +63,29 @@ public class Beamer extends JavaPlugin {
 		}
 		metrics = new Metrics(this);
 		Register.metrics(metrics);
+		String version = ReflectionUtil.getVersion();
+		if (version.contains("1_8")) {
+			factory = new PacketFactory_1_8_R1();
+		} else if (version.contains("1_7")) {
+			consoleMessage("Guardian's don't exist in 1.7 silly, thus this addon is useless. Please update your Spigot version in order to use this addon.");
+			this.setEnabled(false);
+			return;
+		} else if (version.contains("1_9")) {
+			consoleMessage("Beamer does not support 1.9 at the moment. Please update your Spigot version to latest 1.12 in order to use this addon.");
+			this.setEnabled(false);
+			return;
+		} else {
+			factory = new PacketFactory_1_12_R1();
+		}
 		if (!getConfig().getBoolean("DisableRegisteredInfo", false)) Bukkit.getLogger().info(nameplate + "has been enabled!");
 	}
 	
 	public SkriptAddon getAddonInstance() {
 		return addon;
+	}
+	
+	public IPacketFactory getPacketFactory() {
+		return factory;
 	}
 	
 	public static String getNameplate() {

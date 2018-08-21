@@ -5,8 +5,8 @@ import org.bukkit.event.Event;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import me.limeglass.beamer.lang.BeamerCondition;
+import me.limeglass.beamer.protocol.beam.ClientBeam;
 import me.limeglass.beamer.utils.annotations.Patterns;
-import net.jaxonbrown.guardianBeam.beam.ClientBeam;
 
 @Name("Beam - is viewing")
 @Description("Check if the player is currently viewing the beam.")
