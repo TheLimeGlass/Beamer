@@ -14,7 +14,7 @@ import me.limeglass.beamer.utils.annotations.Patterns;
 public class CondBeamIsActive extends BeamerCondition {
 
 	public boolean check(Event event) {
-		if (isNull(event, 0)) return !isNegated();
+		if (areNull(event)) return !isNegated();
 		return expressions.getSingle(event, ClientBeam.class).isActive() ? isNegated() : isNegated();
 	}
 
