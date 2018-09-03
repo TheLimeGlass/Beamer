@@ -5,7 +5,7 @@ import org.bukkit.event.Event;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import me.limeglass.beamer.lang.BeamerCondition;
-import me.limeglass.beamer.protocol.beam.ClientBeam;
+import me.limeglass.beamer.protocol.beam.Beam;
 import me.limeglass.beamer.utils.annotations.Patterns;
 
 @Name("Beam - is active")
@@ -15,7 +15,7 @@ public class CondBeamIsActive extends BeamerCondition {
 
 	public boolean check(Event event) {
 		if (areNull(event)) return !isNegated();
-		return expressions.getSingle(event, ClientBeam.class).isActive() ? isNegated() : isNegated();
+		return expressions.getSingle(event, Beam.class).isActive() ? isNegated() : isNegated();
 	}
 
 }

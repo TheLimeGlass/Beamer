@@ -5,7 +5,7 @@ import org.bukkit.event.Event;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import me.limeglass.beamer.lang.BeamerEffect;
-import me.limeglass.beamer.protocol.beam.ClientBeam;
+import me.limeglass.beamer.protocol.beam.Beam;
 import me.limeglass.beamer.utils.annotations.Patterns;
 
 @Name("Beam start and stop")
@@ -16,7 +16,7 @@ public class EffStartStopBeam extends BeamerEffect {
 	@Override
 	protected void execute(Event event) {
 		if (areNull(event)) return;
-		for (ClientBeam beam : (ClientBeam[]) expressions.get(0).getArray(event)) {
+		for (Beam beam : expressions.getAll(event, Beam.class)) {
 			if (patternMark == 1) {
 				beam.start();
 			} else if (patternMark == 2) {

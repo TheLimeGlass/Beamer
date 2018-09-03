@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -21,7 +20,7 @@ import me.limeglass.beamer.elements.Register;
 import me.limeglass.beamer.protocol.IPacketFactory;
 import me.limeglass.beamer.protocol.PacketFactory_1_12_R1;
 import me.limeglass.beamer.protocol.PacketFactory_1_8_R1;
-import me.limeglass.beamer.protocol.beam.ClientBeam;
+import me.limeglass.beamer.protocol.beam.Beam;
 import me.limeglass.beamer.utils.ReflectionUtil;
 import me.limeglass.beamer.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
@@ -40,10 +39,15 @@ public class Beamer extends JavaPlugin {
 	public void onEnable(){
 		addon = Skript.registerAddon(this);
 		instance = this;
-		Classes.registerClass(new ClassInfo<ClientBeam>(ClientBeam.class, "beam"));
+		Classes.registerClass(new ClassInfo<Beam>(Beam.class, "beam"));
 		saveDefaultConfig();
 		File config = new File(getDataFolder(), "config.yml");
-		if (!Objects.equals(getDescription().getVersion(), getConfig().getString("version"))) {
+		if (!getDescription().getVersion().equals(getConfig().getString("version"))) {
+			//Syntax changes
+			if (getConfig().getString("version").equals("1.0.2") || getConfig().getString("version").equals("1.0.1") || getConfig().getString("version").equals("1.0.0")) {
+				File file = new File(getDataFolder(), "syntax.yml");
+				if (file.exists()) file.delete();
+			}
 			consoleMessage("&dNew update found! Updating files now...");
 			if (config.exists()) new SpigotConfigSaver(this).execute();
 		}

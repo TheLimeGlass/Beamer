@@ -17,18 +17,48 @@
  */
 package me.limeglass.beamer.protocol.beam;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
-public class ClientBeam extends Beam {
+import com.google.common.base.Preconditions;
 
-	public ClientBeam(Location starting, Location ending, Player... players) {
-		this(starting, ending, 100D, 5, players);
+import me.limeglass.beamer.Beamer;
+
+public class GlobalBeam extends Beam {
+
+	private BukkitTask playerTask;
+	
+	public GlobalBeam(Location starting, Location ending) {
+		this(starting, ending, 100D, 5);
 	}
 
-	public ClientBeam(Location starting, Location ending, double radius, long delay, Player... players) {
+	public GlobalBeam(Location starting, Location ending, double radius, long delay) {
 		super(starting, ending, radius, delay);
-		addViewers(players);
+		playerTask = Bukkit.getScheduler().runTaskTimer(Beamer.getInstance(), new Runnable() {
+			@Override
+			public void run() {
+				viewers.addAll(Bukkit.getOnlinePlayers());
+			}
+		}, 0, getUpdateDelay());
+	}
+	
+	@Override
+	public void stop() {
+		Preconditions.checkState(active, "The beam must be enabled in order to stop it");
+		active = false;
+		for (Player player : viewers) {
+			if (player.getWorld().getUID().equals(worldUUID) && isClose(player.getLocation())) {
+				beam.cleanup(player);
+			}
+		}
+		if (playerTask != null) playerTask.cancel();
+		if (task != null) task.cancel();
+		viewers.clear();
+		playing.clear();
+		playerTask = null;
+		task = null;
 	}
 
 }

@@ -34,6 +34,7 @@ import org.bukkit.entity.Player;
  * @author Jaxon A Brown
  */
 public class LocationTargetBeam {
+
 	private final WrappedBeamPacket packetSquidSpawn;
 	private final WrappedBeamPacket packetSquidMove;
 	private final WrappedBeamPacket packetGuardianSpawn;
@@ -96,4 +97,5 @@ public class LocationTargetBeam {
 	public void cleanup(Player player) {
 		this.packetRemoveEntities.send(player);
 	}
+
 }

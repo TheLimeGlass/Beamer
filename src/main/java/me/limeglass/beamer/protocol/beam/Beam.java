@@ -17,197 +17,177 @@
  */
 package me.limeglass.beamer.protocol.beam;
 
-import com.google.common.base.Preconditions;
-
-import me.limeglass.beamer.Beamer;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Creates a guardian beam between two locations.
- * This uses ProtocolLib to send two entities: A guardian and a squid.
- * The guardian is then set to target the squid.
- * @author Jaxon A Brown
- */
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+
+import me.limeglass.beamer.Beamer;
+
 public class Beam {
-    private final UUID worldUID;
-    private final double viewingRadiusSquared;
-    private final long updateDelay;
+	
+	protected final Set<Player> viewers = new HashSet<>();
+	protected final Set<Player> playing = new HashSet<>();
+	protected final LocationTargetBeam beam;
+	protected Location starting, ending;
+	protected final UUID worldUUID;
+	protected final double radius;
+	protected final long delay;
+	protected BukkitTask task;
+	protected boolean active;
 
-    private boolean isActive;
-    private final LocationTargetBeam beam;
-    private Location startingPosition, endingPosition;
-    private final Set<UUID> viewers;
+	public Beam(Location startingPosition, Location endingPosition) {
+		this(startingPosition, endingPosition, 100D, 5);
+	}
+	
+	public Beam(Location starting, Location ending, double radius, long delay) {
+		Preconditions.checkState(starting.getWorld().equals(ending.getWorld()), "starting position and ending position must be in the same world");
+		Preconditions.checkArgument(delay >= 1, "update delay must be a natural number");
+		Preconditions.checkArgument(radius > 0, "viewing radius must be positive");
+		Preconditions.checkNotNull(starting, "starting position may not be null");
+		Preconditions.checkNotNull(ending, "ending position may not be null");
 
-    private BukkitRunnable runnable;
+		this.beam = new LocationTargetBeam(starting, ending);
+		this.worldUUID = starting.getWorld().getUID();
+		this.radius = radius * radius;
+		this.starting = starting;
+		this.ending = ending;
+		this.delay = delay;
+	}
+	
+	public double getRadius() {
+		return radius;
+	}
+	
+	public long getUpdateDelay() {
+		return delay;
+	}
 
-    /**
-     * Create a guardian beam for anyone to see. This sets up the packets.
-     * @param startingPosition Position to start the beam, or the position which the effect 'moves towards'.
-     * @param endingPosition Position to stop the beam, or the position which the effect 'moves away from'.
-     */
-    public Beam(Location startingPosition, Location endingPosition) {
-        this(startingPosition, endingPosition, 100D, 5);
-    }
+	public Set<Player> getViewers() {
+		return viewers;
+	}
+	
+	public Set<Player> getPlaying() {
+		return playing;
+	}
 
-    /**
-     * Create a guardian beam for anyone to see. This sets up the packets.
-     * @param startingPosition Position to start the beam, or the position which the effect 'moves towards'.
-     * @param endingPosition Position to stop the beam, or the position which the effect 'moves away from'.
-     * @param viewingRadius Radius from either node of the beam from which it can be seen.
-     * @param updateDelay Delay between checking if the beam should be hidden or shown to potentially applicable players.
-     */
-    public Beam(Location startingPosition, Location endingPosition, double viewingRadius, long updateDelay) {
-        Preconditions.checkNotNull(startingPosition, "startingPosition cannot be null");
-        Preconditions.checkNotNull(endingPosition, "endingPosition cannot be null");
-        Preconditions.checkState(startingPosition.getWorld().equals(endingPosition.getWorld()), "startingPosition and endingPosition must be in the same world");
-        Preconditions.checkArgument(viewingRadius > 0, "viewingRadius must be positive");
-        Preconditions.checkArgument(updateDelay >= 1, "viewingRadius must be a natural number");
+	public Location getStartingPosition() {
+		return starting;
+	}
+	
+	public boolean hasViewers(Player... players) {
+		for (Player player : players) {
+			if (!viewers.contains(player)) return false;
+		}
+		return true;
+	}
+	
+	public boolean isPlaying(Player player) {
+		return playing.contains(player);
+	}
+	
+	public void addViewers(Player... players) {
+		viewers.addAll(Sets.newHashSet(players));
+	}
 
-        this.worldUID = startingPosition.getWorld().getUID();
-        this.viewingRadiusSquared = viewingRadius * viewingRadius;
-        this.updateDelay = updateDelay;
+	public void setStartingPosition(Location location) {
+		Preconditions.checkArgument(location.getWorld().getUID().equals(worldUUID), "location must be in the same world as this beam");
+		Iterator<Player> iterator = viewers.iterator();
+		while (iterator.hasNext()) {
+			Player player = iterator.next();
+			if (!player.isOnline() || !player.getWorld().getUID().equals(worldUUID) || !isClose(player.getLocation())) {
+				iterator.remove();
+				continue;
+			}
+			beam.setStartingPosition(player, location);
+		}
+		this.starting = location;
+	}
 
-        this.isActive = false;
-        this.beam = new LocationTargetBeam(startingPosition, endingPosition);
-        this.startingPosition = startingPosition;
-        this.endingPosition = endingPosition;
-        this.viewers = new HashSet<>();
-    }
+	public Location getEndingPosition() {
+		return ending;
+	}
 
-    /**
-     * Send the packets to create the beam to applicable players.
-     * This also starts the runnable which will make the effect visible if it becomes applicable to a player.
-     */
-    public void start() {
-        Preconditions.checkState(!this.isActive, "The beam must be disabled in order to start it");
+	public void setEndingPosition(Location location) {
+		Preconditions.checkArgument(location.getWorld().getUID().equals(worldUUID), "location must be in the same world as this beam");
+		Iterator<Player> iterator = viewers.iterator();
+		while (iterator.hasNext()) {
+			Player player = iterator.next();
+			if (!player.isOnline() || !player.getWorld().getUID().equals(worldUUID) || !isClose(player.getLocation())) {
+				iterator.remove();
+				continue;
+			}
+			beam.setEndingPosition(player, location);
+		}
+		this.ending = location;
+	}
 
-        this.isActive = true;
-        (this.runnable = new BeamUpdater()).runTaskTimer(Beamer.getInstance(), 0, this.updateDelay);
-    }
+	public boolean isActive() {
+		return active;
+	}
 
-    /**
-     * Send the packets to remove the beam from the player, if applicable.
-     * This also stops the runnable.
-     */
-    public void stop() {
-        Preconditions.checkState(this.isActive, "The beam must be enabled in order to stop it");
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	
+	public void start() {
+		Preconditions.checkState(!active, "The beam must be disabled in order to start it");
+		this.active = true;
+		this.task = Bukkit.getScheduler().runTaskTimer(Beamer.getInstance(), new Runnable() {
+			@Override
+			public void run() {
+				update();
+			}
+		}, 0, delay);
+	}
+	
+	public void stop() {
+		Preconditions.checkState(active, "The beam must be enabled in order to stop it");
+		active = false;
+		for (Player player : viewers) {
+			if (player.getWorld().getUID().equals(worldUUID) && isClose(player.getLocation())) {
+				beam.cleanup(player);
+			}
+		}
+		if (task != null) task.cancel();
+		viewers.clear();
+		playing.clear();
+		task = null;
+	}
+	
+	public void update() {
+		if (!active) {
+			task.cancel();
+			return;
+		}
+		for (Player player : viewers) {
+			if (!player.getWorld().getUID().equals(worldUUID)) {
+				viewers.remove(player);
+				beam.cleanup(player);
+				return;
+			}
+			if (isClose(player.getLocation())) {
+				if (!playing.contains(player)) {
+					playing.add(player);
+					beam.start(player);
+				}
+			} else if (playing.contains(player)) {
+				playing.remove(player);
+				beam.cleanup(player);
+			}
+		}
+	}
+	
+	protected boolean isClose(Location location) {
+		return starting.distanceSquared(location) <= radius || ending.distanceSquared(location) <= radius;
+	}
 
-        this.isActive = false;
-        for(UUID uuid : viewers) {
-            Player player = Bukkit.getPlayer(uuid);
-            if(player != null && player.getWorld().getUID().equals(this.worldUID) && isCloseEnough(player.getLocation())) {
-                this.beam.cleanup(player);
-            }
-        }
-        this.viewers.clear();
-        this.runnable.cancel();
-        this.runnable = null;
-    }
-
-    /**
-     * Sets the starting position of the beam, or the position which the effect 'moves towards'.
-     * @param location the starting position.
-     */
-    public void setStartingPosition(Location location) {
-        Preconditions.checkArgument(location.getWorld().getUID().equals(this.worldUID), "location must be in the same world as this beam");
-
-        this.startingPosition = location;
-        Iterator<UUID> iterator = this.viewers.iterator();
-        while(iterator.hasNext()) {
-            UUID uuid = iterator.next();
-            Player player = Bukkit.getPlayer(uuid);
-
-            if(player == null || !player.isOnline() || !player.getWorld().getUID().equals(this.worldUID) || !isCloseEnough(player.getLocation())) {
-                iterator.remove();
-                continue;
-            }
-
-            this.beam.setStartingPosition(player, location);
-        }
-    }
-
-    /**
-     * Sets the ending position of the beam, or the position which the effect 'moves away from'.
-     * @param location the ending position.
-     */
-    public void setEndingPosition(Location location) {
-        Preconditions.checkArgument(location.getWorld().getUID().equals(this.worldUID), "location must be in the same world as this beam");
-
-        this.endingPosition = location;
-        Iterator<UUID> iterator = this.viewers.iterator();
-        while(iterator.hasNext()) {
-            UUID uuid = iterator.next();
-            Player player = Bukkit.getPlayer(uuid);
-
-            if(!player.isOnline() || !player.getWorld().getUID().equals(this.worldUID) || !isCloseEnough(player.getLocation())) {
-                iterator.remove();
-                continue;
-            }
-
-            this.beam.setEndingPosition(player, location);
-        }
-    }
-
-    /**
-     * Checks if any packets need to be sent to show or hide the beam to any applicable player.
-     */
-    public void update() {
-        if(this.isActive) {
-            for(Player player : Bukkit.getOnlinePlayers()) {
-                UUID uuid = player.getUniqueId();
-
-                if(!player.getWorld().getUID().equals(this.worldUID)) {
-                    this.viewers.remove(uuid);
-                    return;
-                }
-
-                if(isCloseEnough(player.getLocation())) {
-                    if(!this.viewers.contains(uuid)) {
-                        this.beam.start(player);
-                        this.viewers.add(uuid);
-                    }
-                } else if(this.viewers.contains(uuid)) {
-                    this.beam.cleanup(player);
-                    this.viewers.remove(uuid);
-                }
-            }
-        }
-    }
-
-    /**
-     * Checks if the beam is active (will show when applicable).
-     * @return True if active.
-     */
-    public boolean isActive() {
-        return this.isActive;
-    }
-
-    /**
-     * Checks if the player is currently viewing the beam (can the player see it).
-     * @param player player to check
-     * @return True if viewing.
-     */
-    public boolean isViewing(Player player) {
-        return this.viewers.contains(player.getUniqueId());
-    }
-
-    private boolean isCloseEnough(Location location) {
-        return startingPosition.distanceSquared(location) <= viewingRadiusSquared ||
-                endingPosition.distanceSquared(location) <= viewingRadiusSquared;
-    }
-
-    private class BeamUpdater extends BukkitRunnable {
-        @Override
-        public void run() {
-            Beam.this.update();
-        }
-    }
 }
