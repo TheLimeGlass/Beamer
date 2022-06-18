@@ -1,5 +1,6 @@
 package me.limeglass.beamer.elements;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import ch.njol.skript.Skript;
@@ -9,10 +10,13 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import me.limeglass.beamer.Beamer;
-import me.limeglass.beamer.Metrics;
 import me.limeglass.beamer.Syntax;
 import me.limeglass.beamer.utils.ReflectionUtil;
-import me.limeglass.beamer.utils.annotations.*;
+import me.limeglass.beamer.utils.annotations.Disabled;
+import me.limeglass.beamer.utils.annotations.ExpressionProperty;
+import me.limeglass.beamer.utils.annotations.Patterns;
+import me.limeglass.beamer.utils.annotations.Properties;
+import me.limeglass.beamer.utils.annotations.PropertiesAddition;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Register {
@@ -51,9 +55,9 @@ public class Register {
 					} else if (Expression.class.isAssignableFrom(clazz)) {
 						if (clazz.isAnnotationPresent(ExpressionProperty.class)) type = ((ExpressionProperty) clazz.getAnnotation(ExpressionProperty.class)).value();
 						try {
-							Skript.registerExpression(clazz, ((Expression) clazz.newInstance()).getReturnType(), type, syntax);
+							Skript.registerExpression(clazz, ((Expression) clazz.getConstructor().newInstance()).getReturnType(), type, syntax);
 							Beamer.debugMessage("&5Registered Expression " + type.toString() + " " + clazz.getSimpleName() + " (" + clazz.getCanonicalName() + ") with syntax " + Arrays.toString(syntax));
-						} catch (IllegalAccessException | IllegalArgumentException | InstantiationException e) {
+						} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 							Beamer.consoleMessage("&cFailed to register expression " + clazz.getCanonicalName());
 							e.printStackTrace();
 						}
@@ -62,32 +66,5 @@ public class Register {
 			}
 		}
 	}
-	
-	public static void metrics(Metrics metrics) {
-		metrics.addCustomChart(new Metrics.SimplePie("skript_version") {
-			@Override
-			public String getValue() {
-				return Skript.getVersion().toString();
-			}
-		});
-		metrics.addCustomChart(new Metrics.SimplePie("use_encryption") {
-			@Override
-			public String getValue() {
-				return Beamer.getInstance().getConfig().getBoolean("security.encryption.enabled", false) + "";
-			}
-		});
-		metrics.addCustomChart(new Metrics.SimplePie("use_breaches") {
-			@Override
-			public String getValue() {
-				return Beamer.getInstance().getConfig().getBoolean("security.breaches.enabled", false) + "";
-			}
-		});
-		metrics.addCustomChart(new Metrics.SimplePie("use_password") {
-			@Override
-			public String getValue() {
-				return Beamer.getInstance().getConfig().getBoolean("security.password.enabled", false) + "";
-			}
-		});
-		Beamer.debugMessage("Metrics registered!");
-	}
+
 }

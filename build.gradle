@@ -59,8 +59,6 @@ dependencies {
 		transitive = false
 	}
 
-	shadow (group: 'org.json', name: 'json', version: '20211205')
-
 	shadow fileTree(dir: 'libraries', include: '*.jar')
 
 }

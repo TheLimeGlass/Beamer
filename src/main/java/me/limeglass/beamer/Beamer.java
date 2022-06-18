@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -34,7 +35,6 @@ public class Beamer extends JavaPlugin {
 	private static IPacketFactory factory;
 	private static Beamer instance;
 	private SkriptAddon addon;
-	private Metrics metrics;
 	
 	public void onEnable(){
 		addon = Skript.registerAddon(this);
@@ -65,8 +65,6 @@ public class Beamer extends JavaPlugin {
 			}
 			files.put(name, configuration);
 		}
-		metrics = new Metrics(this);
-		Register.metrics(metrics);
 		String version = ReflectionUtil.getVersion();
 		if (version.contains("1_8")) {
 			factory = new PacketFactory_1_8_R1();
@@ -81,6 +79,7 @@ public class Beamer extends JavaPlugin {
 		} else {
 			factory = new PacketFactory_1_12_R1();
 		}
+		new Register();
 		if (!getConfig().getBoolean("DisableRegisteredInfo", false)) Bukkit.getLogger().info(nameplate + "has been enabled!");
 	}
 	
@@ -106,10 +105,6 @@ public class Beamer extends JavaPlugin {
 	
 	public String getPackageName() {
 		return packageName;
-	}
-	
-	public Metrics getMetrics() {
-		return metrics;
 	}
 	
 	//Grabs a FileConfiguration of a defined name. The name can't contain .yml in it.
