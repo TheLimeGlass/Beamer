@@ -1,77 +1,84 @@
 import org.apache.tools.ant.filters.ReplaceTokens
-apply plugin: 'java-library'
-apply plugin: 'eclipse'
 
-
-group = 'me.limeglass.beamer'
-version = '1.0.0'
-
-sourceCompatibility = 1.8
-jar.archiveName = project.name + '.jar'
-
-configurations {
-    shade
-    compile.extendsFrom shade
+plugins {
+	id 'com.github.johnrengelman.shadow' version '7.1.2'
+	id 'eclipse'
+	id 'java'
 }
 
 repositories {
-    mavenCentral()
-    jcenter()
-    
-    //Spigot
-    maven {
-        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
-    
-    //Skript
-    maven {
-        url "https://raw.githubusercontent.com/bensku/mvn-repo/master"
-    }
-    
-    //Bungeecord
-    maven {
-        url "https://oss.sonatype.org/content/repositories/snapshots"
-    }
-    
-    //ProtocolLib
-    maven {
-    	url "http://repo.dmulloy2.net/nexus/repository/public/"
-    }
-    
-    //jitpack
-    maven {
-    	url 'https://jitpack.io'
-    }
+	mavenCentral()
+
+	// Spigot
+	maven {
+		url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+	}
+
+	// Bungeecord
+	maven {
+		url "https://oss.sonatype.org/content/repositories/snapshots/"
+	}
+
+	// Anvil GUI
+	maven {
+		url "https://repo.codemc.io/repository/maven-snapshots/"
+	}
+
+	// ProtocolLib
+	maven {
+		url "https://repo.dmulloy2.net/repository/public/"
+	}
+
+	// Skript
+	maven {
+		url 'https://repo.skriptlang.org/releases'
+	}
+
+	// Jitpack for Sitrica
+	maven {
+		url 'https://jitpack.io'
+	}
+
 }
 
 dependencies {
-	
-	//Nullable annotation
-	implementation (group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '1.1.0')
-	
-	//Spigot/Bukkit
-	implementation (group: 'org.spigotmc', name: 'spigot-api', version: '1.12.2-R0.1-SNAPSHOT')
-	
-	//ProtocolLib
-	implementation (group: "com.comphenix.protocol", name: "ProtocolLib-API", version: "4.4.0-20180804.022003-36")
-	
-	//Skript
-    implementation (group: 'ch.njol', name: 'skript', version: '2.2-dev35b') {
-        transitive = false
+
+	// Nullable annotation
+	implementation (group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600')
+
+	// Spigot/Bukkit
+	implementation (group: 'org.spigotmc', name: 'spigot-api', version: '1.18.2-R0.1-SNAPSHOT')
+
+	// Skript
+	implementation (group: 'com.github.SkriptLang', name: 'Skript', version: '2.6.2') {
+		transitive = false
 	}
+
+	// ProtocolLib
+	implementation (group: "com.comphenix.protocol", name: "ProtocolLib", version: "4.8.0") {
+		transitive = false
+	}
+
+	shadow fileTree(dir: 'libraries', include: '*.jar')
+
 }
 
 processResources {
-    from (sourceSets.main.resources.srcDirs) {
-        include '**/*.yml'
+	filter ReplaceTokens, tokens: ["version": project.property("version")]
+	from ('lang') {
+        include '**/*'
+        into 'lang/'
     }
 }
 
-jar {
-    configurations.shade.each { dep ->
-        from (project.zipTree(dep)){
-            exclude 'META-INF', 'META-INF/**'
-            exclude '**/*.yml'
-        }
-    }
+shadowJar {
+	configurations = [project.configurations.shadow]
+	archiveVersion = project.property("version")
+	archiveBaseName = project.name
+	classifier = ''
+	dependencies {
+		exclude(dependency('org.spigotmc:'))
+		exclude(dependency('org.yaml:'))
+		exclude(dependency('io.netty:'))
+	}
 }
