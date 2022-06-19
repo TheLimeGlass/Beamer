@@ -28,6 +28,8 @@ import java.lang.reflect.InvocationTargetException;
  * @author Jaxon A Brown
  */
 public class WrappedBeamPacket {
+
+	private final WrapperPlayServerEntityMetadata metadata;
 	private final PacketContainer handle;
 
 	/**
@@ -35,6 +37,11 @@ public class WrappedBeamPacket {
 	 * @param container packet to wrap.
 	 */
 	public WrappedBeamPacket(PacketContainer container) {
+		this(container, null);
+	}
+
+	public WrappedBeamPacket(PacketContainer container, WrapperPlayServerEntityMetadata metadata) {
+		this.metadata = metadata;
 		this.handle = container;
 	}
 
@@ -45,6 +52,8 @@ public class WrappedBeamPacket {
 	public void send(Player receiver) {
 		try {
 			ProtocolLibrary.getProtocolManager().sendServerPacket(receiver, this.handle);
+			if (metadata != null)
+				metadata.sendPacket(receiver);
 		} catch(InvocationTargetException ex) {
 			throw new RuntimeException("Failed to send beam packet to player.", ex);
 		}

@@ -17,19 +17,20 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Version;
 import me.limeglass.beamer.elements.Register;
 import me.limeglass.beamer.protocol.IPacketFactory;
 import me.limeglass.beamer.protocol.PacketFactory_1_12_R1;
+import me.limeglass.beamer.protocol.PacketFactory_1_19_R1;
 import me.limeglass.beamer.protocol.PacketFactory_1_8_R1;
 import me.limeglass.beamer.protocol.beam.Beam;
-import me.limeglass.beamer.utils.ReflectionUtil;
 import me.limeglass.beamer.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 
 public class Beamer extends JavaPlugin {
 	
 	private static Map<String, FileConfiguration> files = new HashMap<String, FileConfiguration>();
-	private String packageName = "me.limeglass.beamer";
+	private String packageName = "me.limeglass.beamer.elements";
 	private static String prefix = "&7[&bBeamer&7] &9";
 	private static String nameplate = "[Beamer] ";
 	private static IPacketFactory factory;
@@ -65,19 +66,23 @@ public class Beamer extends JavaPlugin {
 			}
 			files.put(name, configuration);
 		}
-		String version = ReflectionUtil.getVersion();
-		if (version.contains("1_8")) {
+		if (Skript.getMinecraftVersion().equals(new Version(1, 8))) {
 			factory = new PacketFactory_1_8_R1();
-		} else if (version.contains("1_7")) {
+		} else if (Skript.getMinecraftVersion().isSmallerThan(new Version(1, 8))) {
 			consoleMessage("Guardian's don't exist in 1.7 silly, thus this addon is useless. Please update your Spigot version in order to use this addon.");
 			this.setEnabled(false);
 			return;
-		} else if (version.contains("1_9")) {
+		} else if (Skript.getMinecraftVersion().equals(new Version(1, 9))) {
 			consoleMessage("Beamer does not support 1.9 at the moment. Please update your Spigot version to latest 1.12 in order to use this addon.");
 			this.setEnabled(false);
 			return;
-		} else {
+		} else if (Skript.getMinecraftVersion().equals(new Version(1, 12))) {
 			factory = new PacketFactory_1_12_R1();
+		// Future additions
+//		} else if (Skript.getMinecraftVersion().isLargerThan(new Version(1, 17))) {
+//			factory = new PacketFactory_1_19_R1();
+		} else {
+			factory = new PacketFactory_1_19_R1();
 		}
 		new Register();
 		if (!getConfig().getBoolean("DisableRegisteredInfo", false)) Bukkit.getLogger().info(nameplate + "has been enabled!");
