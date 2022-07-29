@@ -25,8 +25,6 @@ jobs:
                   cache: gradle
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
-            - name: Build Skript
-              run: ./gradlew nightlyRelease
             - name: Build with Gradle
               run: ./gradlew clean build
             - name: Upload Nightly Build
