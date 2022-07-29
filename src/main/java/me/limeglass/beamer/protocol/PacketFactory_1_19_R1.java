@@ -60,6 +60,7 @@ public class PacketFactory_1_19_R1 implements IPacketFactory {
 
 		WrapperPlayServerEntityMetadata wrapper = new WrapperPlayServerEntityMetadata();
 		WrappedDataWatcher watcher = WrappedDataWatcher.getEntityWatcher(fakeSquid);
+		// Invisible
 		watcher.setObject(0, Registry.get(Byte.class), (byte) 0x20);
 		wrapper.setMetadata(watcher.getWatchableObjects());
 		wrapper.setEntityID(entityID);
@@ -80,8 +81,11 @@ public class PacketFactory_1_19_R1 implements IPacketFactory {
 
 		WrapperPlayServerEntityMetadata wrapper = new WrapperPlayServerEntityMetadata();
 		WrappedDataWatcher watcher = WrappedDataWatcher.getEntityWatcher(fakeGuardian);
+		// Invisible
 		watcher.setObject(0, Registry.get(Byte.class), (byte) 0x20);
+		// Is retracting spikes
 		watcher.setObject(16, false);
+		// Target EID
 		watcher.setObject(17, squidPacket.getHandle().getIntegers().read(0));
 		wrapper.setMetadata(watcher.getWatchableObjects());
 		wrapper.setEntityID(entityID);

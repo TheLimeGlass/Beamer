@@ -63,6 +63,10 @@ dependencies {
 
 }
 
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs += ["-source", "8", "-target", "8"]
+}
+
 processResources {
 	filter ReplaceTokens, tokens: ["version": project.property("version")]
 	from ('lang') {
