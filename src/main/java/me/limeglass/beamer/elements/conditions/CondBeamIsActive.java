@@ -10,7 +10,7 @@ import me.limeglass.beamer.utils.annotations.Patterns;
 
 @Name("Beam - is active")
 @Description("Check if the beam is active.")
-@Patterns("%beam% (1¦is|2¦is(n't|not)) active")
+@Patterns("%beam% (1Â¦is|2Â¦is(n't|not)) active")
 public class CondBeamIsActive extends BeamerCondition {
 
 	public boolean check(Event event) {

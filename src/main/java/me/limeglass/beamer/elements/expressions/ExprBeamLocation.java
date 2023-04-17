@@ -13,7 +13,7 @@ import me.limeglass.beamer.utils.annotations.PropertiesAddition;
 
 @Name("Beam start and ending locations")
 @Description("Returns/Sets the starting or ending location of the beam.")
-@Properties({"beams", "(1¦starting|2¦ending) (location|postions)[s]", "{1}[(all [[of] the]|the)]"})
+@Properties({"beams", "(1Â¦starting|2Â¦ending) (location|postions)[s]", "{1}[(all [[of] the]|the)]"})
 @PropertiesAddition("[guardian] [beam[s]]")
 @Changers(ChangeMode.SET)
 public class ExprBeamLocation extends BeamerPropertyExpression<Beam, Location> {

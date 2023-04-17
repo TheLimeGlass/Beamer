@@ -78,9 +78,8 @@ public class Beamer extends JavaPlugin {
 			return;
 		} else if (Skript.getMinecraftVersion().equals(new Version(1, 12))) {
 			factory = new PacketFactory_1_12_R1();
-		// Future additions
-//		} else if (Skript.getMinecraftVersion().isLargerThan(new Version(1, 17))) {
-//			factory = new PacketFactory_1_19_R1();
+//		} else if (Skript.getMinecraftVersion().isSmallerThan(new Version(1, 20, 4))) {
+//			factory = new PacketFactory...();
 		} else {
 			factory = new PacketFactory_1_19_R1();
 		}

@@ -1,5 +1,7 @@
 package me.limeglass.beamer.protocol;
 
+import java.util.ArrayList;
+
 /**
  * PacketWrapper - ProtocolLib wrappers for Minecraft packets
  * Copyright (C) dmulloy2 <http://dmulloy2.net>
@@ -27,7 +29,11 @@ import org.bukkit.entity.Entity;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.WrappedDataValue;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher.WrappedDataWatcherObject;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
+
+import ch.njol.skript.Skript;
 
 public class WrapperPlayServerEntityMetadata extends AbstractPacket {
 
@@ -96,8 +102,17 @@ public class WrapperPlayServerEntityMetadata extends AbstractPacket {
 	 * 
 	 * @param value - new value.
 	 */
-	public void setMetadata(List<WrappedWatchableObject> value) {
-		handle.getWatchableCollectionModifier().write(0, value);
+	public void setMetadata(List<WrappedWatchableObject> list) {
+		if (Skript.classExists("com.comphenix.protocol.wrappers.WrappedDataValue")) {
+			List<WrappedDataValue> values = new ArrayList<>();
+			for (WrappedWatchableObject entry : list) {
+				WrappedDataWatcherObject watcherObject = entry.getWatcherObject();
+				values.add(new WrappedDataValue(watcherObject.getIndex(), watcherObject.getSerializer(), entry.getRawValue()));
+			}
+			handle.getDataValueCollectionModifier().write(0, values);
+		} else {
+			handle.getWatchableCollectionModifier().write(0, list);
+		}
 	}
 
 }

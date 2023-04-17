@@ -33,7 +33,7 @@ import com.google.common.collect.Sets;
 import me.limeglass.beamer.Beamer;
 
 public class Beam {
-	
+
 	protected final Set<Player> viewers = new HashSet<>();
 	protected final Set<Player> playing = new HashSet<>();
 	protected final LocationTargetBeam beam;
@@ -47,7 +47,7 @@ public class Beam {
 	public Beam(Location startingPosition, Location endingPosition) {
 		this(startingPosition, endingPosition, 100D, 5);
 	}
-	
+
 	public Beam(Location starting, Location ending, double radius, long delay) {
 		Preconditions.checkState(starting.getWorld().equals(ending.getWorld()), "starting position and ending position must be in the same world");
 		Preconditions.checkArgument(delay >= 1, "update delay must be a natural number");
@@ -62,11 +62,11 @@ public class Beam {
 		this.ending = ending;
 		this.delay = delay;
 	}
-	
+
 	public double getRadius() {
 		return radius;
 	}
-	
+
 	public long getUpdateDelay() {
 		return delay;
 	}
@@ -74,7 +74,7 @@ public class Beam {
 	public Set<Player> getViewers() {
 		return viewers;
 	}
-	
+
 	public Set<Player> getPlaying() {
 		return playing;
 	}
@@ -82,18 +82,18 @@ public class Beam {
 	public Location getStartingPosition() {
 		return starting;
 	}
-	
+
 	public boolean hasViewers(Player... players) {
 		for (Player player : players) {
 			if (!viewers.contains(player)) return false;
 		}
 		return true;
 	}
-	
+
 	public boolean isPlaying(Player player) {
 		return playing.contains(player);
 	}
-	
+
 	public void addViewers(Player... players) {
 		viewers.addAll(Sets.newHashSet(players));
 	}
@@ -137,7 +137,7 @@ public class Beam {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-	
+
 	public void start() {
 		Preconditions.checkState(!active, "The beam must be disabled in order to start it");
 		this.active = true;
@@ -148,7 +148,7 @@ public class Beam {
 			}
 		}, 0, delay);
 	}
-	
+
 	public void stop() {
 		Preconditions.checkState(active, "The beam must be enabled in order to stop it");
 		active = false;
@@ -162,7 +162,7 @@ public class Beam {
 		playing.clear();
 		task = null;
 	}
-	
+
 	public void update() {
 		if (!active) {
 			task.cancel();
@@ -185,7 +185,7 @@ public class Beam {
 			}
 		}
 	}
-	
+
 	protected boolean isClose(Location location) {
 		return starting.distanceSquared(location) <= radius || ending.distanceSquared(location) <= radius;
 	}

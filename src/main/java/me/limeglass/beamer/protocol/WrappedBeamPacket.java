@@ -21,8 +21,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
-
 /**
  * Wraps a packet container for convenience.
  * @author Jaxon A Brown
@@ -54,7 +52,7 @@ public class WrappedBeamPacket {
 			ProtocolLibrary.getProtocolManager().sendServerPacket(receiver, this.handle);
 			if (metadata != null)
 				metadata.sendPacket(receiver);
-		} catch(InvocationTargetException ex) {
+		} catch(Exception ex) { // Before 5.0.0-SNAPSHOT ProtocolLib
 			throw new RuntimeException("Failed to send beam packet to player.", ex);
 		}
 	}

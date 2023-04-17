@@ -10,7 +10,7 @@ import me.limeglass.beamer.utils.annotations.Patterns;
 
 @Name("Beam start and stop")
 @Description("Starts or stops a Guardian Beam.")
-@Patterns("(1¦start|2¦stop) [guardian] [beam[s]] %beams%")
+@Patterns("(1Â¦start|2Â¦stop) [guardian] [beam[s]] %beams%")
 public class EffStartStopBeam extends BeamerEffect {
 
 	@Override

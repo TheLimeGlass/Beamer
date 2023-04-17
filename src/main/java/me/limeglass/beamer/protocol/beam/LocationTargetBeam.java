@@ -35,6 +35,7 @@ import org.bukkit.entity.Player;
  */
 public class LocationTargetBeam {
 
+	private static final IPacketFactory factory = Beamer.getInstance().getPacketFactory();
 	private final WrappedBeamPacket packetSquidSpawn;
 	private final WrappedBeamPacket packetSquidMove;
 	private final WrappedBeamPacket packetGuardianSpawn;
@@ -43,6 +44,7 @@ public class LocationTargetBeam {
 
 	/**
 	 * Create a guardian beam. This sets up the packets.
+	 * 
 	 * @param startingPosition Position to start the beam, or the position which the effect 'moves towards'.
 	 * @param endingPosition Position to stop the beam, or the position which the effect 'moves away from'.
 	 */
@@ -50,8 +52,7 @@ public class LocationTargetBeam {
 		Preconditions.checkNotNull(startingPosition, "startingPosition cannot be null");
 		Preconditions.checkNotNull(endingPosition, "endingPosition cannot be null");
 		Preconditions.checkState(startingPosition.getWorld().equals(endingPosition.getWorld()), "startingPosition and endingPosition must be in the same world");
-		
-		IPacketFactory factory = Beamer.getInstance().getPacketFactory();
+
 		this.packetSquidSpawn = factory.createPacketSquidSpawn(startingPosition);
 		this.packetSquidMove = factory.createPacketEntityMove(this.packetSquidSpawn);
 		this.packetGuardianSpawn = factory.createPacketGuardianSpawn(endingPosition, this.packetSquidSpawn);
@@ -61,6 +62,7 @@ public class LocationTargetBeam {
 
 	/**
 	 * Send the packets to create the beam to the player.
+	 * 
 	 * @param player player to whom the beam will be sent.
 	 */
 	public void start(Player player) {
@@ -70,11 +72,11 @@ public class LocationTargetBeam {
 
 	/**
 	 * Sets the position of the beam which the effect 'moves away from'.
+	 * 
 	 * @param player player who should receive the update. They MUST have been showed the beam already.
 	 * @param location location of the new position.
 	 */
 	public void setStartingPosition(Player player, Location location) {
-		IPacketFactory factory = Beamer.getInstance().getPacketFactory();
 		factory.modifyPacketEntitySpawn(this.packetSquidSpawn, location);
 		factory.modifyPacketEntityMove(this.packetSquidMove, location).send(player);
 	}
@@ -85,7 +87,6 @@ public class LocationTargetBeam {
 	 * @param location location of the new position.
 	 */
 	public void setEndingPosition(Player player, Location location) {
-		IPacketFactory factory = Beamer.getInstance().getPacketFactory();
 		factory.modifyPacketEntitySpawn(this.packetGuardianSpawn, location);
 		factory.modifyPacketEntityMove(this.packetGuardianMove, location).send(player);
 	}

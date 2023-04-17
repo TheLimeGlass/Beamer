@@ -11,7 +11,7 @@ import me.limeglass.beamer.utils.annotations.Patterns;
 
 @Name("Beam - is viewing")
 @Description("Check if the player is currently viewing the beam.")
-@Patterns("%beam% (1¦is|2¦is(n't|not)) [currently] [being] viewed by %players%")
+@Patterns("%beam% (1Â¦is|2Â¦is(n't|not)) [currently] [being] viewed by %players%")
 public class CondBeamIsViewing extends BeamerCondition {
 
 	public boolean check(Event event) {
